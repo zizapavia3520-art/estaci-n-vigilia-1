@@ -1,2 +1,7 @@
 # estaci-n-vigilia-1
-proyecto de clase con lo que estemos abrendiendo
+#integrantes
+ziza carey pavia navarro
+samuel magaña ledesma
+dylan barrueta
+#CRN
+325035208
