@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+char nombre[50];
+char correo[50];
+int numeroTarjeta;
+} Usuario;
+
+
+void registrar(Usuario *u);
+
+int main() {
+    Usuario usuario;
+    
+printf("REGISTRO DE DATOS \n");
+    
+   
+registrar(&usuario);
+    
+printf("datos guardados correctamente\n");
+    
+    return 0;
+}
+
+
+void registrar(Usuario *u) {
+printf("INGRESA TU NOMBRE: ");
+scanf(" %[^\n]", u->nombre);
+printf(" INGRESA TU CORREO: ");
+scanf(" %[^\n]", u->correo);
+printf("NUMERO DE TARJETA: ");
+scanf("%d", &u->numeroTarjeta);
+}
