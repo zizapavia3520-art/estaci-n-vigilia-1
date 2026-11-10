@@ -85,7 +85,7 @@ printf("Usuario registrado correctamente.\n");
 
 //  FASE 1: VER USUARIOS / GESTIONAR REPORTES 
 void ver_usuarios() {
-printf("\n=== GESTION REPORTES ===\n");
+printf(" GESTION REPORTES ===\n");
 
 // revisa si no hay usuarios registrados
 if (cantidad_usuarios == 0) {
@@ -127,7 +127,7 @@ temp->siguiente = nuevo; // agrega el nodo al final
 
 // FASE 2: MOSTRAR HISTORIAL 
 void mostrar_historial() {
-printf("\n=== VER HISTORIAL ===\n");
+printf("VER HISTORIAL \n");
 
 // si la lista esta vacia muestra mensaje y sale
 if (inicio == NULL) {
