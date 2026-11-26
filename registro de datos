@@ -1,34 +1,197 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#define MAX 50
+
 typedef struct {
-char nombre[50];
-char correo[50];
-int numeroTarjeta;
+    char nombre[50];
+    char correo[50];
+    int tarjeta;
+    int dias_pasados;
 } Usuario;
 
+Usuario *lista_usuarios = NULL;
+int cantidad_usuarios = 0;
 
-void registrar(Usuario *u);
+typedef struct NodoHistorial {
+    int tarjeta;
+    char fecha[20];
+    struct NodoHistorial *siguiente;
+} NodoHistorial;
 
-int main() {
-    Usuario usuario;
+NodoHistorial *inicio = NULL;
+Usuario pila[MAX];
+int cima = -1;
+
+int pila_llena() { return cima >= MAX - 1; }
+int pila_vacia() { return cima < 0; }
+
+void agregar_historial(int tarjeta) {
+    NodoHistorial *nuevo = (NodoHistorial*)malloc(sizeof(NodoHistorial));
+    nuevo->tarjeta = tarjeta;
+    strcpy(nuevo->fecha, "08/11/2026");
+    nuevo->siguiente = NULL;
     
-printf("REGISTRO DE DATOS \n");
-    
-   
-registrar(&usuario);
-    
-printf("datos guardados correctamente\n");
-    
-    return 0;
+    if (inicio == NULL) {
+        inicio = nuevo;
+    } else {
+        NodoHistorial *temp = inicio;
+        while (temp->siguiente != NULL) {
+            temp = temp->siguiente;
+        }
+        temp->siguiente = nuevo;
+    }
 }
 
+void pasar_tarjeta() {
+    int tarjeta;
+    printf("NUMERO DE TARJETA: ");
+    scanf("%d", &tarjeta);
+    
+    while (tarjeta < 10000 || tarjeta > 99999) {
+        printf("Error: debe ser de 5 dígitos. Intenta de nuevo: ");
+        scanf("%d", &tarjeta);
+    }
+    
+    printf("Tarjeta leída.\n");
+    agregar_historial(tarjeta);
+}
 
-void registrar(Usuario *u) {
-printf("INGRESA TU NOMBRE: ");
-scanf(" %[^\n]", u->nombre);
-printf(" INGRESA TU CORREO: ");
-scanf(" %[^\n]", u->correo);
-printf("NUMERO DE TARJETA: ");
-scanf("%d", &u->numeroTarjeta);
+void registrar_usuario() {
+    lista_usuarios = (Usuario*)realloc(lista_usuarios, (cantidad_usuarios + 1) * sizeof(Usuario));
+    Usuario *u = &lista_usuarios[cantidad_usuarios];
+    
+    printf("NOMBRE: ");
+    getchar();
+    fgets(u->nombre, 50, stdin);
+    u->nombre[strcspn(u->nombre, "\n")] = 0;
+    
+    printf("CORREO: ");
+    fgets(u->correo, 50, stdin);
+    u->correo[strcspn(u->correo, "\n")] = 0;
+    
+    while (strchr(u->correo, '@') == NULL) {
+        printf("Error: el correo debe tener @\n");
+        printf("CORREO: ");
+        fgets(u->correo, 50, stdin);
+        u->correo[strcspn(u->correo, "\n")] = 0;
+    }
+    
+    printf("NUMERO DE TARJETA: ");
+    scanf("%d", &u->tarjeta);
+    
+    while (u->tarjeta < 10000 || u->tarjeta > 99999) {
+        printf("Error: debe ser de 5 dígitos. Intenta de nuevo: ");
+        scanf("%d", &u->tarjeta);
+    }
+    
+    printf("DÍAS QUE HAS PASADO: ");
+    scanf("%d", &u->dias_pasados);
+    
+    if (!pila_llena()) {
+        pila[cima + 1] = *u;
+        cima++;
+    }
+    
+    cantidad_usuarios++;
+    printf("Usuario registrado correctamente.\n");
+}
+
+void ver_usuarios() {
+    printf("===== GESTIÓN DE REPORTES =====\n");
+    if (cantidad_usuarios == 0) {
+        printf("Sin registros.\n");
+        return;
+    }
+    for (int i = 0; i < cantidad_usuarios; i++) {
+        printf("\nUsuario %d:\n", i + 1);
+        printf("Nombre: %s\n", lista_usuarios[i].nombre);
+        printf("Correo: %s\n", lista_usuarios[i].correo);
+        printf("Tarjeta: %d\n", lista_usuarios[i].tarjeta);
+        printf("Días: %d\n", lista_usuarios[i].dias_pasados);
+    }
+}
+
+void mostrar_historial() {
+    printf("===== VER HISTORIAL =====\n");
+    if (inicio == NULL) {
+        printf("Sin registros en el historial.\n");
+        return;
+    }
+    NodoHistorial *temp = inicio;
+    int i = 1;
+    while (temp != NULL) {
+        printf("%d. Tarjeta: %d | Fecha: %s\n", i, temp->tarjeta, temp->fecha);
+        temp = temp->siguiente;
+        i++;
+    }
+}
+
+void deshacer_registro() {
+    if (pila_vacia()) {
+        printf("nada que deshacer.\n");
+        return;
+    }
+    printf("desacer: %s\n", pila[cima].nombre);
+    cima--;
+    cantidad_usuarios--;
+}
+
+int main() {
+    int opcion;
+    printf("\n    ESTACIÓN DE TREN\n    INDIOS VERDES\n\n");
+    
+    do {
+        printf("\n===== MENU =====\n");
+        printf("1. ¿Tienes tarjeta?\n");
+        printf("2. Pasar número de tarjeta\n");
+        printf("3. Registrarse\n");
+        printf("4. Gestionar reportes\n");
+        printf("5. Ver historial\n");
+        printf("6. Deshacer último registro\n");
+        printf("0. Salir\n");
+        printf("ELIGE UNA OPCIÓN: ");
+        scanf("%d", &opcion);
+        
+        if (opcion == 1) {
+            int r;
+            printf("\n¿Tienes tarjeta? 1.SÍ  0.NO: ");
+            scanf("%d", &r);
+            if (r == 1) {
+                int tarjeta;
+                printf("NÚMERO DE TARJETA: ");
+                scanf("%d", &tarjeta);
+                while (tarjeta < 10000 || tarjeta > 99999) {
+                    printf("Error: debe ser de 5 dígitos. Intenta de nuevo: ");
+                    scanf("%d", &tarjeta);
+                }
+                printf("Tarjeta leída.\n");
+                agregar_historial(tarjeta);
+            } else {
+                int reg;
+                printf("¿Quieres registrarte? 1.SÍ  0.NO: ");
+                scanf("%d", &reg);
+                if (reg == 1) registrar_usuario();
+                else printf("Saliendo.\n");
+            }
+        }
+        else if (opcion == 2) pasar_tarjeta();
+        else if (opcion == 3) registrar_usuario();
+        else if (opcion == 4) ver_usuarios();
+        else if (opcion == 5) mostrar_historial();
+        else if (opcion == 6) deshacer_registro();
+        else if (opcion == 0) {
+            free(lista_usuarios);
+            while (inicio != NULL) {
+                NodoHistorial *temp = inicio;
+                inicio = inicio->siguiente;
+                free(temp);
+            }
+            printf("Memoria liberada. Adiós.\n");
+        }
+        else printf("Opción no válida.\n");
+    } while (opcion != 0);
+    
+    return 0;
 }
